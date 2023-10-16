@@ -1,3 +1,4 @@
+//adding a comment to see if I can save an update to github
 function setup() {
     var canvas = document.getElementById('myCanvas');
     canvas.width = window.innerWidth;
