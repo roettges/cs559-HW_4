@@ -72,12 +72,12 @@ function setup() {
             context.fill();
             context.beginPath();
             context.fillStyle = "black";
-            beeFace([0,0],Tx,scalor,theta,Math.PI/3,5*Math.PI/3); //face
+            ellipseToTx([0,0],Tx,scalor,theta,Math.PI/3,5*Math.PI/3); //face
             context.closePath();
             context.stroke();
             context.fill();
             context.beginPath();
-            beeButt([0,0],Tx,scalor,theta,7*Math.PI/6,5*Math.PI/6); //butt
+            ellipseToTx([0,0],Tx,scalor,theta,7*Math.PI/6,5*Math.PI/6); //butt
             context.closePath();
             context.stroke();
             context.fill();
@@ -87,7 +87,7 @@ function setup() {
             moveToTx([0,4*scalor],Tx);
             lineToTx([0,-4*scalor],Tx);
             context.stroke();
-            const hofln = Math.sqrt(16*scalor*scalor*(1-(4*scalor*scalor)/(64*scalor*scalor))); //height of line
+            const hofln = Math.sqrt(16*scalor*scalor*(1-(4*scalor*scalor)/(64*scalor*scalor))); //height of line may need to update to var 
             context.beginPath();
             moveToTx([2*scalor,hofln],Tx);
             lineToTx([2*scalor,-hofln],Tx);
@@ -125,7 +125,7 @@ function setup() {
             context.globalAlpha = 1;
         } // end draw Wings
 
-        this.moveBee = function() {
+        /*this.moveBee = function() {
             this.drawBeeBod();
             this.drawWings();
 
@@ -133,7 +133,7 @@ function setup() {
 
         this.flapWings=function() {
 
-        }//end flap wings
+        }//end flap wings*/
 
     } // end Bee
     
@@ -165,8 +165,8 @@ function setup() {
             //console.log('BigP: at creation' +bigP)
         } // return P matrix should ensure C1 continuity with Hermite
 
-    var bees = []
-        var p0=[0,0];
+   var bees = []
+    /*    var p0=[0,0];
         var d0=[1*(canvas.width/2),3*(canvas.height/2)];
         var p1=[1*(canvas.width/2),1*(canvas.height/2)];
         var d1=[-1*(canvas.width/2),3*(canvas.height/2)];
@@ -182,14 +182,15 @@ function setup() {
         var testtest = []
         testtest.push(generateBigP(testing));
         bees.push(new Bee(testing,testtest,Hermite,TangentHermite,moveToTx,lineToTx,ellipseToTx));
+    */
     
-    for (let j=1; j < 2; j++) {
+    for (let j=0; j < 200; j++) {
         //randomly generated set of control points unique to each bee
         var controls = [];
         var p0 = [0,0];
         controls.push(p0)
         for (let i=0; i < 14; i++) {
-            var pnext=[((Math.random()-.5)*canvas.width),((Math.random()-.5)*canvas.width)]
+            var pnext=[((Math.random()+1)*(Math.random()-.2)*canvas.width),((Math.random()+1)*(Math.random()-.2)*canvas.width)]
             controls.push(pnext)
         }
         var plast = [((Math.random()-.5)*2*canvas.width),((Math.random()-.5)*2*canvas.width)]
@@ -211,26 +212,27 @@ function setup() {
         }
 
   
-    var generatePiecewiseC = function(B,i,t) {
+    var generatePiecewiseC = function(B,i,t,whichBee) {
         //B in my example will be either the basis or the tangent basis (trying to make this reusable
-        var piecewiseC =(Cubic(B,bees[0].bigP[0][i-1],t)); //bigP[0][i] is a set of 4 sets of 2: 2 points/2 tangents
+        //t is time, whichBee is which bee we are generating the path for, and i is the ith piece of the piecewise function we are building
+        var piecewiseC =(Cubic(B,bees[whichBee].bigP[i-1],t)); //bigP[0][i] is a set of 4 sets of 2: 2 points/2 tangents
         return piecewiseC;
     }
 
-    var compRestraintCPath = function(B,t) {
-        var len = bees[0].bigP[0].length;
+    var compRestraintCPath = function(B,t,whichBee) {
+        var len = bees[whichBee].bigP.length;
         if (t>=len) {
             var u = t-(len-1);
-            var pieceC = generatePiecewiseC(B,len,u);
+            var pieceC = generatePiecewiseC(B,len,u,whichBee);
         } else {
             var j = Math.floor(t); //my step is always 1 in this scenario, u will be between 0 &1
             var u = t-j
-            var pieceC = generatePiecewiseC(B,j+1,u);
+            var pieceC = generatePiecewiseC(B,j+1,u,whichBee);
         }
         return pieceC;
     } 
 
-    function drawTrajectory(t_begin,t_end,intervals,Tx,color) {
+   /* function drawTrajectory(t_begin,t_end,intervals,Tx,color) {
         context.strokeStyle=color;
         context.beginPath();
         moveToTx(compRestraintCPath(Hermite,t_begin),Tx);
@@ -239,31 +241,80 @@ function setup() {
             lineToTx(compRestraintCPath(Hermite,t),Tx);
         }
         context.stroke();
-    };
+    };*/
     console.log('My Bee: ' + bees[0])
     console.log(bees[0].bigP)
     console.log(bees[0].bigP[0].length)
    // console.log('here: '+ p[0][0]);
-  
+
+    console.log("Bees array: " + bees);
+    console.log("bees[0]: ");
+    console.log(bees[0]);
+    console.log("bees[1]: " );
+    console.log(bees[1])
+    console.log("bees[0].bigP: ");
+    console.log(bees[0].bigP);
+    console.log("bees[1].bigP: ");
+    console.log(bees[1].bigP);
 
     var Tbase_to_canvas = mat3.create();
     mat3.fromTranslation(Tbase_to_canvas,[0,canvas.height]); //move to bottom left
     mat3.scale(Tbase_to_canvas,Tbase_to_canvas,[1,-1]); // Flip the Y-axis
     drawAxes("blue",Tbase_to_canvas);
-    drawTrajectory(0.0,6.0,200,Tbase_to_canvas,"red");
+    //drawTrajectory(0.0,6.0,200,Tbase_to_canvas,"red");
     //drawTrajectory(1.0,2.0,10,Tbase_to_canvas,"red"); console.log("I made it here?!?!?!?!")
     //drawTrajectory(1.0,9.0,100,compRestraintCPath,Tbase_to_canvas,"red");
 
-    /*function update(time) {
-        draw(time);
+    function drawBee(t) { //may need to put in parent object and pass in basis and tangentbasis
+        for (var i=0; i < bees.length; i++) {
+            var Tbee_to_base = mat3.create();
+            mat3.fromTranslation(Tbee_to_base,compRestraintCPath(Hermite,t,i));
+            var tangent = compRestraintCPath(TangentHermite,t,i);
+            var angle = Math.atan2(tangent[1],tangent[0]);
+            mat3.rotate(Tbee_to_base,Tbee_to_base,angle);
+            var Tbee_to_canvas = mat3.create();
+            mat3.multiply(Tbee_to_canvas, Tbase_to_canvas, Tbee_to_base);
+            //bees[0].drawBeeBod("yellow",Tbee_to_canvas,2+(time),angle);
+
+            //now draw wings
+            if (Math.round(t*20) % 2 ==0) {
+                var degrees1=70;
+                var degrees2=20;
+            } else {
+                var degrees1 = 80;
+                var degrees2 = 40;
+            }
+
+            var Twings_to_bee = mat3.create();
+            mat3.copy(Twings_to_bee,Tbee_to_canvas);
+            mat3.rotate(Twings_to_bee,Twings_to_bee,degrees1*Math.PI/180)
+            mat3.scale(Twings_to_bee,Twings_to_bee,[1+t,1+t])
+            //drawAxes("orange",Twings_to_bee);
+            var Twing_to_wing = mat3.create();
+            mat3.copy(Twing_to_wing,Twings_to_bee);
+            mat3.rotate(Twing_to_wing,Twing_to_wing,degrees2*Math.PI/180)
+
+            bees[i].drawWings("blue",Twings_to_bee);
+            bees[i].drawBeeBod("yellow",Tbee_to_canvas,2+t,angle);
+            bees[i].drawWings("blue",Twing_to_wing);
+        }
+        
+    }
+  
+
+    function update(time) {
+        drawBee(time);
     }
 
     function moveBee() {
-        //canvas.width=canvas.width;
+        canvas.width=canvas.width;
+        requestAnimationFrame(moveBee);
         if (time > 7) {time = 0;}
         time = time +0.01;
         update(time);
-    }*/
+    }
+
+    moveBee();
 
     canvas.addEventListener('click',(event) => {
         const shape = canvas.getBoundingClientRect();
